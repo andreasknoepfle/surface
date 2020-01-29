@@ -129,6 +129,22 @@ defmodule Surface.Translator do
     [updated_node | build_metadata(nodes, caller)]
   end
 
+  defp build_metadata([{{:tag_expr, expression}, _, _, _} = node | nodes], caller) do
+    {_, attributes, children, meta} = node
+
+    {directives, attributes} = pop_directives(attributes, @component_directives)
+
+    meta =
+      meta
+      |> Map.put(:tag_expression, expression)
+      |> Map.put(:translator, Surface.Translator.LiveComponentTranslator)
+      |> Map.put(:directives, directives)
+
+    children = build_metadata(children, caller)
+    updated_node = {tag_name, attributes, children, meta}
+    [updated_node | build_metadata(nodes, caller)]
+  end
+
   defp build_metadata([{tag_name, _, _, _} = node | nodes], caller) when is_binary(tag_name) do
     {_, attributes, children, meta} = node
 

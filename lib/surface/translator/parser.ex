@@ -27,10 +27,24 @@ defmodule Surface.Translator.Parser do
 
   ## Common helpers
 
-  tag =
+
+  tag_string =
     ascii_char([?a..?z, ?A..?Z])
     |> ascii_string([?a..?z, ?A..?Z, ?0..?9, ?-, ?., ?_], min: 0)
     |> reduce({List, :to_string, []})
+
+  tag_expr =
+    ignore(string("{{"))
+    |> repeat(lookahead_not(string("}}")) |> utf8_char([]))
+    |> ignore(string("}}"))
+    |> reduce({List, :to_string, []})
+    |> tag(:tag_expr)
+
+  tag =
+    choice([
+      tag_string,
+      tag_expr
+    ])
 
   boolean =
     choice([

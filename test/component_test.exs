@@ -93,6 +93,17 @@ defmodule Surface.ComponentTest do
     end
   end
 
+  defmodule ViewWithInterpolatedComponent do
+    use Surface.LiveView
+
+    def render(assigns) do
+      component = Stateless
+      ~H"""
+      <{{component}} label="My label" class="myclass"/>
+      """
+    end
+  end
+
   describe "With LiveView" do
     test "render stateless component" do
       {:ok, _view, html} = live_isolated(build_conn(), ViewWithStateless)
@@ -120,6 +131,16 @@ defmodule Surface.ComponentTest do
       assert_html html =~ """
       <div>
         My info
+      </div>
+      """
+    end
+
+    test "render interpolated component" do
+      {:ok, _view, html} = live_isolated(build_conn(), ViewWithInterpolatedComponent)
+
+      assert_html html =~ """
+      <div class="myclass">
+        <span>My label</span>
       </div>
       """
     end
